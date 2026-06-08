@@ -1,0 +1,1724 @@
+<!DOCTYPE html>
+<!-- saved from url=(0045)file:///C:/Users/billy/Downloads/index_6.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coastal Air — Project Estimator</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --bg2: #181c27;
+    --bg3: #1e2333;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.14);
+    --text: #e8eaf0;
+    --text2: #9399a8;
+    --text3: #5d6273;
+    --blue: #3b82f6;
+    --blue-dim: rgba(59,130,246,0.15);
+    --green: #22c55e;
+    --green-dim: rgba(34,197,94,0.12);
+    --yellow: #f59e0b;
+    --yellow-dim: rgba(245,158,11,0.12);
+    --red: #ef4444;
+    --red-dim: rgba(239,68,68,0.12);
+    --accent: #6366f1;
+    --accent-dim: rgba(99,102,241,0.15);
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, sans-serif; font-size: 14px; min-height: 100vh; }
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+  /* PIN SCREEN */
+  #pin-screen {
+    position: fixed; inset: 0; background: var(--bg);
+    display: flex; align-items: center; justify-content: center; z-index: 100;
+  }
+  .pin-box {
+    background: var(--bg2); border: 1px solid var(--border2);
+    border-radius: 16px; padding: 48px 40px; text-align: center; width: 360px;
+  }
+  .pin-logo { font-size: 13px; letter-spacing: 0.12em; color: var(--text3); text-transform: uppercase; margin-bottom: 32px; }
+  .pin-title { font-size: 22px; font-weight: 600; margin-bottom: 8px; }
+  .pin-sub { font-size: 13px; color: var(--text2); margin-bottom: 32px; }
+  .pin-dots { display: flex; gap: 12px; justify-content: center; margin-bottom: 32px; }
+  .pin-dot {
+    width: 14px; height: 14px; border-radius: 50%;
+    border: 2px solid var(--border2); background: transparent; transition: all 0.15s;
+  }
+  .pin-dot.filled { background: var(--accent); border-color: var(--accent); }
+  .pin-keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .pin-key {
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 16px; font-size: 18px; font-weight: 500;
+    cursor: pointer; transition: all 0.12s; color: var(--text);
+  }
+  .pin-key:hover { background: var(--accent-dim); border-color: var(--accent); }
+  .pin-key:active { transform: scale(0.95); }
+  .pin-key.del { font-size: 14px; color: var(--text2); }
+  .pin-error { color: var(--red); font-size: 13px; margin-top: 16px; min-height: 20px; }
+
+  /* LAYOUT */
+  #app { display: none; }
+  .topbar {
+    background: var(--bg2); border-bottom: 1px solid var(--border);
+    padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 50;
+  }
+  .topbar-left { display: flex; align-items: center; gap: 16px; }
+  .topbar-brand { font-size: 13px; font-weight: 600; letter-spacing: 0.08em; color: var(--text); text-transform: uppercase; }
+  .topbar-divider { width: 1px; height: 18px; background: var(--border2); }
+  .topbar-title { font-size: 13px; color: var(--text2); }
+  .topbar-right { display: flex; gap: 8px; }
+  .btn {
+    border: 1px solid var(--border2); background: transparent; color: var(--text);
+    border-radius: var(--radius-sm); padding: 7px 14px; font-size: 13px; font-weight: 500;
+    cursor: pointer; transition: all 0.12s; font-family: inherit;
+  }
+  .btn:hover { background: var(--bg3); border-color: var(--border2); }
+  .btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn-primary:hover { background: #5558e8; border-color: #5558e8; }
+  .btn-sm { padding: 5px 10px; font-size: 12px; }
+  .btn-ghost { border-color: transparent; color: var(--text2); }
+  .btn-ghost:hover { color: var(--text); background: var(--bg3); border-color: var(--border); }
+
+  /* TABS */
+  .tabs { display: flex; border-bottom: 1px solid var(--border); padding: 0 24px; background: var(--bg2); }
+  .tab {
+    padding: 14px 18px; font-size: 13px; font-weight: 500; color: var(--text3);
+    cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px;
+    transition: all 0.15s; white-space: nowrap;
+  }
+  .tab:hover { color: var(--text2); }
+  .tab.active { color: var(--text); border-bottom-color: var(--accent); }
+
+  /* MAIN CONTENT */
+  .main { padding: 28px 24px; max-width: 1100px; margin: 0 auto; }
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* CARDS */
+  .card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 20px 22px; margin-bottom: 16px;
+  }
+  .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+  .card-title { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text2); }
+
+  /* FORM ELEMENTS */
+  .field { margin-bottom: 16px; }
+  .field label { display: block; font-size: 12px; font-weight: 500; color: var(--text2); margin-bottom: 6px; letter-spacing: 0.04em; text-transform: uppercase; }
+  input[type=text], input[type=number], select, textarea {
+    width: 100%; background: var(--bg3); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 9px 12px; color: var(--text);
+    font-size: 14px; font-family: inherit; transition: border-color 0.15s;
+    -moz-appearance: textfield;
+  }
+  input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; }
+  input:focus, select:focus, textarea:focus {
+    outline: none; border-color: var(--accent); background: var(--bg3);
+  }
+  select option { background: var(--bg3); }
+  textarea { resize: vertical; min-height: 80px; }
+  .field-row { display: grid; gap: 14px; }
+  .col-2 { grid-template-columns: 1fr 1fr; }
+  .col-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .col-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+
+  /* STAT CARDS */
+  .stat-grid { display: grid; gap: 12px; }
+  .stat-2 { grid-template-columns: repeat(2, 1fr); }
+  .stat-3 { grid-template-columns: repeat(3, 1fr); }
+  .stat-4 { grid-template-columns: repeat(4, 1fr); }
+  .stat-card {
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 18px;
+  }
+  .stat-label { font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+  .stat-value { font-size: 22px; font-weight: 600; font-family: 'IBM Plex Mono', monospace; }
+  .stat-sub { font-size: 12px; color: var(--text2); margin-top: 4px; }
+  .c-green { color: var(--green); }
+  .c-yellow { color: var(--yellow); }
+  .c-red { color: var(--red); }
+  .c-blue { color: var(--blue); }
+  .c-text { color: var(--text); }
+
+  /* HEALTH BAR */
+  .health-bar-wrap { margin: 6px 0 2px; }
+  .health-bar-track { height: 4px; background: var(--border2); border-radius: 2px; position: relative; overflow: visible; }
+  .health-bar-fill { height: 100%; border-radius: 2px; transition: width 0.4s ease, background 0.4s ease; }
+  .health-bar-markers { display: flex; justify-content: space-between; margin-top: 4px; }
+  .health-bar-marker { font-size: 10px; color: var(--text3); }
+
+  /* RANGE INDICATOR */
+  .range-card {
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 20px 22px; margin-bottom: 16px;
+  }
+  .range-title { font-size: 13px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 16px; }
+  .range-bar-wrap { position: relative; margin: 24px 0 12px; }
+  .range-bar-track { height: 8px; border-radius: 4px; background: linear-gradient(to right, var(--red), var(--yellow) 40%, var(--green)); }
+  .range-pointer {
+    position: absolute; top: -8px; transform: translateX(-50%);
+    width: 24px; height: 24px; border-radius: 50%;
+    background: var(--bg2); border: 3px solid var(--text);
+    transition: left 0.5s ease; display: flex; align-items: center; justify-content: center;
+  }
+  .range-pointer-inner { width: 8px; height: 8px; border-radius: 50%; background: var(--text); }
+  .range-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--text3); }
+  .range-value-display { text-align: center; }
+  .range-value-big { font-size: 32px; font-weight: 600; font-family: 'IBM Plex Mono', monospace; }
+  .range-value-label { font-size: 12px; color: var(--text2); margin-top: 4px; }
+
+  /* GPMD ANALYSIS */
+  .gpmd-row { display: flex; align-items: center; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+  .gpmd-row:last-child { border-bottom: none; }
+  .gpmd-label { font-size: 13px; color: var(--text2); flex: 1; }
+  .gpmd-bar-wrap { flex: 2; }
+  .gpmd-bar-track { height: 6px; background: var(--border2); border-radius: 3px; position: relative; }
+  .gpmd-bar-fill { height: 100%; border-radius: 3px; transition: width 0.4s; }
+  .gpmd-value { font-size: 13px; font-weight: 600; font-family: 'IBM Plex Mono', monospace; min-width: 70px; text-align: right; }
+  .gpmd-delta { font-size: 11px; color: var(--text3); min-width: 60px; text-align: right; }
+
+  /* ALERTS */
+  .alert {
+    border-radius: var(--radius-sm); padding: 10px 14px; font-size: 13px;
+    border-left: 3px solid; margin-bottom: 10px; display: flex; align-items: flex-start; gap: 10px;
+  }
+  .alert-green { background: var(--green-dim); border-color: var(--green); color: #86efac; }
+  .alert-yellow { background: var(--yellow-dim); border-color: var(--yellow); color: #fcd34d; }
+  .alert-red { background: var(--red-dim); border-color: var(--red); color: #fca5a5; }
+  .alert-icon { font-size: 16px; margin-top: 1px; }
+
+  /* LINE ITEMS TABLE */
+  .line-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .line-table th { padding: 8px 10px; text-align: left; font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid var(--border); }
+  .line-table td { padding: 8px 10px; border-bottom: 1px solid var(--border); }
+  .line-table tr:last-child td { border-bottom: none; }
+  .line-table input[type=text], .line-table input[type=number] {
+    padding: 6px 8px; font-size: 13px;
+  }
+  .line-table .del-btn {
+    background: none; border: none; color: var(--text3); cursor: pointer; font-size: 16px; padding: 2px 6px;
+  }
+  .line-table .del-btn:hover { color: var(--red); }
+
+  /* DIVIDER */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+
+  /* BADGE */
+  .badge {
+    display: inline-block; font-size: 11px; font-weight: 500; padding: 3px 8px;
+    border-radius: 20px; text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .badge-green { background: var(--green-dim); color: var(--green); }
+  .badge-yellow { background: var(--yellow-dim); color: var(--yellow); }
+  .badge-red { background: var(--red-dim); color: var(--red); }
+  .badge-blue { background: var(--blue-dim); color: var(--blue); }
+
+  /* STEP INDICATOR */
+  .steps { display: flex; gap: 0; margin-bottom: 28px; }
+  .step { display: flex; align-items: center; flex: 1; }
+  .step-dot {
+    width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--border2);
+    display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600;
+    color: var(--text3); flex-shrink: 0; background: var(--bg2); transition: all 0.2s;
+  }
+  .step.active .step-dot { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+  .step.done .step-dot { border-color: var(--green); background: var(--green-dim); color: var(--green); }
+  .step-label { font-size: 12px; color: var(--text3); margin-left: 8px; white-space: nowrap; }
+  .step.active .step-label { color: var(--text); }
+  .step.done .step-label { color: var(--text2); }
+  .step-line { flex: 1; height: 1px; background: var(--border2); margin: 0 8px; }
+
+  /* ESTIMATE LIST */
+  .est-row {
+    background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 16px 20px; margin-bottom: 10px; display: flex; align-items: center; gap: 16px;
+    cursor: pointer; transition: border-color 0.15s;
+  }
+  .est-row:hover { border-color: var(--border2); }
+  .est-info { flex: 1; }
+  .est-name { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+  .est-meta { font-size: 12px; color: var(--text2); }
+  .est-amount { font-size: 16px; font-weight: 600; font-family: 'IBM Plex Mono', monospace; text-align: right; }
+  .est-margin { font-size: 12px; color: var(--text2); text-align: right; margin-top: 2px; }
+
+  /* SETTINGS */
+  .settings-dept { margin-bottom: 28px; }
+  .settings-dept-title { font-size: 14px; font-weight: 600; padding-bottom: 12px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+
+  /* PRINT HIDE */
+  @media print { #pin-screen { display: none !important; } }
+
+  /* SCROLL */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- PIN SCREEN -->
+<div id="pin-screen">
+  <div class="pin-box">
+    <div class="pin-logo">Coastal Air</div>
+    <div class="pin-title">Project Estimator</div>
+    <div class="pin-sub">Enter your PIN to continue</div>
+    <div class="pin-dots">
+      <div class="pin-dot" id="d0"></div>
+      <div class="pin-dot" id="d1"></div>
+      <div class="pin-dot" id="d2"></div>
+      <div class="pin-dot" id="d3"></div>
+    </div>
+    <div class="pin-keypad">
+      <button class="pin-key" onclick="pinKey(&#39;1&#39;)">1</button>
+      <button class="pin-key" onclick="pinKey(&#39;2&#39;)">2</button>
+      <button class="pin-key" onclick="pinKey(&#39;3&#39;)">3</button>
+      <button class="pin-key" onclick="pinKey(&#39;4&#39;)">4</button>
+      <button class="pin-key" onclick="pinKey(&#39;5&#39;)">5</button>
+      <button class="pin-key" onclick="pinKey(&#39;6&#39;)">6</button>
+      <button class="pin-key" onclick="pinKey(&#39;7&#39;)">7</button>
+      <button class="pin-key" onclick="pinKey(&#39;8&#39;)">8</button>
+      <button class="pin-key" onclick="pinKey(&#39;9&#39;)">9</button>
+      <button class="pin-key del" onclick="pinKey(&#39;clear&#39;)">CLR</button>
+      <button class="pin-key" onclick="pinKey(&#39;0&#39;)">0</button>
+      <button class="pin-key del" onclick="pinKey(&#39;back&#39;)">⌫</button>
+    </div>
+    <div class="pin-error" id="pin-error"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-brand">Coastal Air</div>
+      <div class="topbar-divider"></div>
+      <div class="topbar-title">Project Estimator</div>
+    </div>
+    <div class="topbar-right">
+      <button class="btn btn-ghost btn-sm" onclick="showTab(&#39;estimates&#39;)">All Estimates</button>
+      <button class="btn btn-primary btn-sm" onclick="newEstimate()">+ New Estimate</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" id="tab-estimates" onclick="showTab(&#39;estimates&#39;)">Estimates</div>
+    <div class="tab" id="tab-builder" onclick="showTab(&#39;builder&#39;)">Estimate Builder</div>
+    <div class="tab" id="tab-settings" onclick="showTab(&#39;settings&#39;)">Settings</div>
+  </div>
+
+  <div class="main">
+
+    <!-- ESTIMATES LIST -->
+    <div class="section active" id="section-estimates">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+        <div>
+          <div style="font-size:20px;font-weight:600;margin-bottom:4px;">Estimates</div>
+          <div style="font-size:13px;color:var(--text2);">All saved project estimates</div>
+        </div>
+        <button class="btn btn-primary" onclick="newEstimate()">+ New Estimate</button>
+      </div>
+      <div id="estimates-list">
+        <div style="text-align:center;padding:60px 20px;color:var(--text3);">
+          <div style="font-size:32px;margin-bottom:12px;">📋</div>
+          <div style="font-size:14px;">No estimates yet</div>
+          <div style="font-size:12px;margin-top:4px;">Click + New Estimate to get started</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ESTIMATE BUILDER -->
+    <div class="section" id="section-builder">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+        <div>
+          <div style="font-size:20px;font-weight:600;margin-bottom:4px;" id="builder-headline">New Estimate</div>
+          <div style="font-size:13px;color:var(--text2);" id="builder-subline">Fill in the details below</div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-ghost btn-sm" onclick="showTab(&#39;estimates&#39;)">← Back</button>
+          <button class="btn btn-sm" onclick="saveEstimate()">Save Draft</button>
+          <button class="btn btn-primary btn-sm" onclick="generatePDF()">Export PDF</button>
+        </div>
+      </div>
+
+      <div class="steps" id="step-indicator">
+        <div class="step active" id="step-1"><div class="step-dot">1</div><div class="step-label">Job Info</div></div>
+        <div class="step-line"></div>
+        <div class="step" id="step-2"><div class="step-dot">2</div><div class="step-label">Labor</div></div>
+        <div class="step-line"></div>
+        <div class="step" id="step-3"><div class="step-dot">3</div><div class="step-label">Costs</div></div>
+        <div class="step-line"></div>
+        <div class="step" id="step-4"><div class="step-dot">4</div><div class="step-label">Summary</div></div>
+      </div>
+
+      <!-- STEP 1: JOB INFO -->
+      <div id="panel-1">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Job Information</div></div>
+          <div class="field-row col-2">
+            <div class="field">
+              <label>ServiceTitan Job # <span style="color:var(--text3);font-weight:400;text-transform:none;">(required)</span></label>
+              <input type="text" id="job-number" placeholder="e.g. 12345678">
+            </div>
+            <div class="field">
+              <label>Estimate Name / Option Label</label>
+              <input type="text" id="estimate-name" placeholder="e.g. Option A — Full Sewer Replacement">
+            </div>
+          </div>
+          <div class="field-row col-2">
+            <div class="field">
+              <label>Customer Name</label>
+              <input type="text" id="customer-name" placeholder="Customer or business name">
+            </div>
+            <div class="field">
+              <label>Department</label>
+              <select id="department" onchange="updateDeptDefaults()">
+                <option value="plumbing">Plumbing</option>
+                <option value="commercial_hvac">Commercial HVAC</option>
+              </select>
+            </div>
+          </div>
+          <div class="field-row col-2">
+            <div class="field">
+              <label>Job Type</label>
+              <select id="job-type">
+                <option value="">Select...</option>
+                <option value="sewer_replacement">Sewer Replacement</option>
+                <option value="full_repipe">Full Repipe</option>
+                <option value="water_service">Water Service</option>
+                <option value="excavation">Excavation-Heavy Job</option>
+                <option value="drain_replacement">Drain Replacement</option>
+                <option value="commercial_sink">Commercial Sink / Fixture</option>
+                <option value="pool_boiler">Commercial Pool Boiler</option>
+                <option value="commercial_hvac_project">Commercial HVAC Project</option>
+                <option value="custom">Custom / Other</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Customer Address</label>
+              <input type="text" id="customer-address" placeholder="Job site address">
+            </div>
+          </div>
+          <div class="field">
+            <label>Scope Summary</label>
+            <textarea id="scope-summary" placeholder="Brief description of what&#39;s included in this estimate..."></textarea>
+          </div>
+          <div class="field">
+            <label>Internal Notes</label>
+            <textarea id="internal-notes" placeholder="Site conditions, access notes, customer details..."></textarea>
+          </div>
+          <div class="field-row col-3">
+            <div class="field">
+              <label>ST Customer ID</label>
+              <input type="text" id="st-customer-id" placeholder="Optional">
+            </div>
+            <div class="field">
+              <label>ST Estimate ID</label>
+              <input type="text" id="st-estimate-id" placeholder="Optional">
+            </div>
+            <div class="field">
+              <label>ST Project ID</label>
+              <input type="text" id="st-project-id" placeholder="Optional">
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;gap:10px;">
+          <button class="btn btn-primary" onclick="goStep(2)">Next: Labor →</button>
+        </div>
+      </div>
+
+      <!-- STEP 2: LABOR -->
+      <div id="panel-2" style="display:none;">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Labor Calculation</div></div>
+          <div class="field-row col-3">
+            <div class="field">
+              <label>Crew Size (technicians)</label>
+              <input type="number" id="crew-size" value="2" min="1" oninput="calcLabor()">
+            </div>
+            <div class="field">
+              <label>Estimated Days</label>
+              <input type="number" id="est-days" value="1" min="0.5" step="0.5" oninput="calcLabor()">
+            </div>
+            <div class="field">
+              <label>Hours Per Day</label>
+              <input type="number" id="hours-per-day" value="8" min="1" max="16" oninput="calcLabor()">
+            </div>
+          </div>
+          <div class="field-row col-3">
+            <div class="field">
+              <label>Direct Loaded Labor ($/hr)</label>
+              <input type="number" id="labor-rate" value="55" min="1" oninput="calcLabor()">
+            </div>
+            <div class="field">
+              <label>Total Man-Days <span style="color:var(--text3);font-weight:400;text-transform:none;">(auto)</span></label>
+              <input type="number" id="man-days" readonly="" style="opacity:0.6;">
+            </div>
+            <div class="field">
+              <label>Total Labor Hours <span style="color:var(--text3);font-weight:400;text-transform:none;">(auto)</span></label>
+              <input type="number" id="total-hours" readonly="" style="opacity:0.6;">
+            </div>
+          </div>
+          <div class="field-row col-2">
+            <div class="field">
+              <label>Daily Breakeven (dept)</label>
+              <input type="number" id="daily-breakeven" value="2361" oninput="calcLabor()">
+            </div>
+            <div class="field">
+              <label>GPMD Target ($/man-day)</label>
+              <input type="number" id="gpmd-target-field" value="731" oninput="calcLabor()">
+            </div>
+          </div>
+        </div>
+
+        <!-- Labor Summary -->
+        <div class="card">
+          <div class="card-header"><div class="card-title">Labor Summary</div></div>
+          <div class="stat-grid stat-4">
+            <div class="stat-card">
+              <div class="stat-label">Total Labor Cost</div>
+              <div class="stat-value c-text" id="s-labor-cost">$0</div>
+              <div class="stat-sub" id="s-labor-sub">—</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Breakeven Coverage</div>
+              <div class="stat-value c-text" id="s-breakeven">$0</div>
+              <div class="stat-sub" id="s-breakeven-sub">—</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Target Labor GP</div>
+              <div class="stat-value c-text" id="s-target-gp">$0</div>
+              <div class="stat-sub">from GPMD × man-days</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Min. Labor Price</div>
+              <div class="stat-value c-text" id="s-min-labor">$0</div>
+              <div class="stat-sub">labor cost + breakeven</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;gap:10px;">
+          <button class="btn" onclick="goStep(1)">← Back</button>
+          <button class="btn btn-primary" onclick="goStep(3)">Next: Costs →</button>
+        </div>
+      </div>
+
+      <!-- STEP 3: COSTS -->
+      <div id="panel-3" style="display:none;">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Project Costs</div></div>
+
+          <!-- MATERIALS -->
+          <div style="border-bottom:1px solid var(--border);padding-bottom:16px;margin-bottom:16px;">
+            <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;">Materials</div>
+            <div class="field-row col-3">
+              <div class="field"><label>Cost ($)</label><input type="number" id="c-materials" value="0" min="0" oninput="calcCosts()"></div>
+              <div class="field"><label>Vendor / Supplier</label><input type="text" id="v-materials-vendor" placeholder="e.g. ABC Supply"></div>
+              <div class="field"><label>Quote # / PO #</label><input type="text" id="v-materials-quote" placeholder="e.g. QT-1042"></div>
+            </div>
+            <div class="field"><label>Notes</label><input type="text" id="v-materials-notes" placeholder="Part numbers, lead time, special order details..."></div>
+          </div>
+
+          <!-- EQUIPMENT -->
+          <div style="border-bottom:1px solid var(--border);padding-bottom:16px;margin-bottom:16px;">
+            <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;">Equipment / Fixtures</div>
+            <div class="field-row col-3">
+              <div class="field"><label>Cost ($)</label><input type="number" id="c-equipment" value="0" min="0" oninput="calcCosts()"></div>
+              <div class="field"><label>Vendor / Supplier</label><input type="text" id="v-equipment-vendor" placeholder="e.g. Ferguson"></div>
+              <div class="field"><label>Quote # / PO #</label><input type="text" id="v-equipment-quote" placeholder="e.g. QT-2291"></div>
+            </div>
+            <div class="field"><label>Notes</label><input type="text" id="v-equipment-notes" placeholder="Model number, spec, lead time..."></div>
+          </div>
+
+          <!-- SUBCONTRACTORS -->
+          <div style="border-bottom:1px solid var(--border);padding-bottom:16px;margin-bottom:16px;">
+            <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;">Subcontractors</div>
+            <div class="field-row col-3">
+              <div class="field"><label>Cost ($)</label><input type="number" id="c-subs" value="0" min="0" oninput="calcCosts()"></div>
+              <div class="field"><label>Subcontractor Name</label><input type="text" id="v-subs-vendor" placeholder="e.g. Smith Excavation"></div>
+              <div class="field"><label>Quote #</label><input type="text" id="v-subs-quote" placeholder="e.g. SUB-441"></div>
+            </div>
+            <div class="field"><label>Notes</label><input type="text" id="v-subs-notes" placeholder="Scope of sub work, conditions..."></div>
+          </div>
+
+          <!-- OTHER COSTS — no vendor fields needed -->
+          <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;">Other Costs</div>
+          <div class="field-row col-3">
+            <div class="field"><label>Permits ($)</label><input type="number" id="c-permits" value="0" min="0" oninput="calcCosts()"></div>
+            <div class="field"><label>Restoration ($)</label><input type="number" id="c-restoration" value="0" min="0" oninput="calcCosts()"></div>
+            <div class="field"><label>Disposal ($)</label><input type="number" id="c-disposal" value="0" min="0" oninput="calcCosts()"></div>
+          </div>
+          <div class="field-row col-3">
+            <div class="field"><label>Rental Equipment ($)</label><input type="number" id="c-rental" value="0" min="0" oninput="calcCosts()"></div>
+            <div class="field"><label>Miscellaneous ($)</label><input type="number" id="c-misc" value="0" min="0" oninput="calcCosts()"></div>
+            <div class="field"><label>Contingency %</label><input type="number" id="contingency-pct" value="5" min="0" max="30" oninput="calcCosts()"></div>
+          </div>
+        </div>
+
+        <!-- Custom Line Items -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Additional Line Items</div>
+            <button class="btn btn-sm" onclick="addLineItem()">+ Add Line</button>
+          </div>
+          <table class="line-table" id="line-items-table">
+            <thead>
+              <tr>
+                <th style="width:28%">Description</th>
+                <th style="width:14%">Category</th>
+                <th style="width:12%">Cost ($)</th>
+                <th style="width:20%">Vendor / Quote #</th>
+                <th style="width:20%">Notes</th>
+                <th style="width:6%"></th>
+              </tr>
+            </thead>
+            <tbody id="line-items-body"></tbody>
+          </table>
+          <div id="line-items-empty" style="text-align:center;padding:20px;color:var(--text3);font-size:13px;">No additional line items</div>
+        </div>
+
+        <!-- Cost Summary -->
+        <div class="card">
+          <div class="card-header"><div class="card-title">Cost Summary</div></div>
+          <div class="stat-grid stat-4">
+            <div class="stat-card">
+              <div class="stat-label">Total Non-Labor</div>
+              <div class="stat-value c-text" id="s-nonlabor">$0</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Contingency</div>
+              <div class="stat-value c-text" id="s-contingency">$0</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Total Direct Costs</div>
+              <div class="stat-value c-text" id="s-direct-costs">$0</div>
+              <div class="stat-sub">labor + all costs</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Min Acceptable Price</div>
+              <div class="stat-value c-text" id="s-min-price">$0</div>
+              <div class="stat-sub">direct + breakeven</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;gap:10px;">
+          <button class="btn" onclick="goStep(2)">← Back</button>
+          <button class="btn btn-primary" onclick="goStep(4)">Next: Summary →</button>
+        </div>
+      </div>
+
+      <!-- STEP 4: SUMMARY -->
+      <div id="panel-4" style="display:none;">
+
+        <!-- GM SLIDER EXPLORER -->
+        <div class="range-card">
+          <div class="range-title">Gross Margin Explorer — Drag to explore any margin</div>
+
+          <!-- Slider -->
+          <div style="padding:0 8px;margin-bottom:16px;">
+            <input type="range" id="gm-slider" min="40" max="60" step="1" value="60" oninput="onSliderMove(this.value)" style="width:100%;height:6px;cursor:pointer;">
+            <div style="display:flex;justify-content:space-between;margin-top:6px;">
+              <span style="font-size:11px;color:var(--text3);">40% — Lean</span>
+              <span style="font-size:11px;color:var(--text3);">50%</span>
+              <span style="font-size:11px;color:var(--text3);">60% — Strong</span>
+            </div>
+          </div>
+
+          <!-- Live readout -->
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;">
+            <div style="text-align:center;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);padding:14px;">
+              <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;">Gross Margin</div>
+              <div style="font-size:28px;font-weight:600;font-family:&#39;IBM Plex Mono&#39;,monospace;" id="slider-gm">60%</div>
+            </div>
+            <div style="text-align:center;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);padding:14px;">
+              <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;">Sale Price</div>
+              <div style="font-size:22px;font-weight:600;font-family:&#39;IBM Plex Mono&#39;,monospace;" id="slider-price">$0</div>
+            </div>
+            <div style="text-align:center;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);padding:14px;">
+              <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;">Gross Profit $</div>
+              <div style="font-size:22px;font-weight:600;font-family:&#39;IBM Plex Mono&#39;,monospace;" id="slider-gp">$0</div>
+            </div>
+            <div style="text-align:center;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);padding:14px;">
+              <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;">GPMD</div>
+              <div style="font-size:22px;font-weight:600;font-family:&#39;IBM Plex Mono&#39;,monospace;" id="slider-gpmd">$0</div>
+              <div style="font-size:11px;color:var(--text3);margin-top:3px;">per man-day</div>
+            </div>
+          </div>
+
+          <!-- Slider context line -->
+          <div id="slider-context" style="font-size:13px;color:var(--text2);padding:10px 14px;background:var(--bg3);border-radius:var(--radius-sm);line-height:1.6;"></div>
+
+          <!-- Reference row -->
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:12px;">
+            <div style="text-align:center;padding:10px;border:1px solid var(--border);border-radius:var(--radius-sm);">
+              <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px;">Price at 40% GM</div>
+              <div style="font-size:15px;font-weight:600;font-family:&#39;IBM Plex Mono&#39;,monospace;color:var(--yellow);" id="price-40">$0</div>
+            </div>
+            <div style="text-align:center;padding:10px;border:1px solid var(--border2);border-radius:var(--radius-sm);">
+              <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px;">Recommended (Target GM)</div>
+              <div style="font-size:15px;font-weight:600;font-family:&#39;IBM Plex Mono&#39;,monospace;" id="price-rec">$0</div>
+            </div>
+            <div style="text-align:center;padding:10px;border:1px solid var(--border);border-radius:var(--radius-sm);">
+              <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px;">Price at 60% GM</div>
+              <div style="font-size:15px;font-weight:600;font-family:&#39;IBM Plex Mono&#39;,monospace;color:var(--green);" id="price-60">$0</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MANUAL OVERRIDE -->
+        <div class="card">
+          <div class="card-header"><div class="card-title">Final Quote Amount</div></div>
+          <div style="font-size:13px;color:var(--text2);margin-bottom:14px;">Use the slider above to explore margins, then lock in your final number here. Leave blank to use the recommended price.</div>
+          <div class="field-row col-2">
+            <div class="field">
+              <label>Final Quote ($)</label>
+              <input type="number" id="final-quote" placeholder="Leave blank to use recommended" oninput="calcFinal()" style="font-size:18px;font-weight:600;">
+            </div>
+            <div class="field">
+              <label>Override Reason</label>
+              <input type="text" id="override-reason" placeholder="Required if overriding recommended price">
+            </div>
+          </div>
+          <div id="override-alert" style="display:none;"></div>
+        </div>
+
+        <!-- KEY METRICS -->
+        <div class="card">
+          <div class="card-header"><div class="card-title">Pricing Health</div></div>
+          <div class="stat-grid stat-4" style="margin-bottom:16px;">
+            <div class="stat-card">
+              <div class="stat-label">Gross Profit $</div>
+              <div class="stat-value" id="s-gp-dollars">$0</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Gross Margin %</div>
+              <div class="stat-value" id="s-gm-pct">0%</div>
+              <div class="health-bar-wrap">
+                <div class="health-bar-track">
+                  <div class="health-bar-fill" id="gm-bar" style="width:0%;background:var(--red);"></div>
+                </div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">GPMD This Job</div>
+              <div class="stat-value" id="s-gpmd-job">$0</div>
+              <div class="stat-sub">per man-day</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Breakeven Coverage</div>
+              <div class="stat-value" id="s-be-coverage">—</div>
+            </div>
+          </div>
+          <div id="health-alerts"></div>
+        </div>
+
+        <!-- GPMD ANALYSIS -->
+        <div class="card">
+          <div class="card-header"><div class="card-title">GPMD Analysis</div></div>
+          <div class="gpmd-row">
+            <div class="gpmd-label">YTD Actual GPMD</div>
+            <div class="gpmd-bar-wrap">
+              <div class="gpmd-bar-track">
+                <div class="gpmd-bar-fill" id="gpmd-bar-ytd" style="width:0%;background:var(--yellow);"></div>
+              </div>
+            </div>
+            <div class="gpmd-value" id="gpmd-v-ytd">$0</div>
+            <div class="gpmd-delta" id="gpmd-d-ytd"></div>
+          </div>
+          <div class="gpmd-row">
+            <div class="gpmd-label">This Job GPMD</div>
+            <div class="gpmd-bar-wrap">
+              <div class="gpmd-bar-track">
+                <div class="gpmd-bar-fill" id="gpmd-bar-job" style="width:0%;background:var(--blue);"></div>
+              </div>
+            </div>
+            <div class="gpmd-value" id="gpmd-v-job">$0</div>
+            <div class="gpmd-delta" id="gpmd-d-job"></div>
+          </div>
+          <div class="gpmd-row">
+            <div class="gpmd-label">GPMD Target</div>
+            <div class="gpmd-bar-wrap">
+              <div class="gpmd-bar-track">
+                <div class="gpmd-bar-fill" id="gpmd-bar-target" style="width:0%;background:var(--green);"></div>
+              </div>
+            </div>
+            <div class="gpmd-value" id="gpmd-v-target">$0</div>
+            <div class="gpmd-delta"></div>
+          </div>
+          <div id="gpmd-narrative" style="margin-top:16px;padding:14px;background:var(--bg3);border-radius:var(--radius-sm);font-size:13px;line-height:1.7;color:var(--text2);"></div>
+        </div>
+
+        <!-- FULL BREAKDOWN -->
+        <div class="card">
+          <div class="card-header"><div class="card-title">Full Cost Breakdown</div></div>
+          <table class="line-table" id="breakdown-table" style="font-size:13px;">
+            <tbody id="breakdown-body"></tbody>
+          </table>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;gap:10px;">
+          <button class="btn" onclick="goStep(3)">← Back</button>
+          <div style="display:flex;gap:8px;">
+            <button class="btn" onclick="saveEstimate()">Save Estimate</button>
+            <button class="btn btn-primary" onclick="generatePDF()">Export PDF</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="section" id="section-settings">
+      <div style="margin-bottom:24px;">
+        <div style="font-size:20px;font-weight:600;margin-bottom:4px;">Settings</div>
+        <div style="font-size:13px;color:var(--text2);">Department defaults — editable any time, changes apply to new estimates</div>
+      </div>
+
+      <div class="settings-dept">
+        <div class="settings-dept-title">Plumbing</div>
+        <div class="field-row col-2">
+          <div class="field"><label>Direct Loaded Labor Rate ($/hr)</label><input type="number" id="set-plumbing-labor" value="55"></div>
+          <div class="field"><label>Daily Breakeven ($)</label><input type="number" id="set-plumbing-breakeven" value="2361"></div>
+        </div>
+        <div class="field-row col-2">
+          <div class="field"><label>GPMD Target ($/man-day)</label><input type="number" id="set-plumbing-gpmd-target" value="731"></div>
+          <div class="field"><label>YTD GPMD Actual ($/man-day)</label><input type="number" id="set-plumbing-gpmd-actual" value="594"></div>
+        </div>
+        <div class="field-row col-2">
+          <div class="field"><label>Target Gross Margin %</label><input type="number" id="set-plumbing-gm" value="60"></div>
+          <div class="field"><label>Default Contingency %</label><input type="number" id="set-plumbing-contingency" value="5"></div>
+        </div>
+      </div>
+
+      <div class="settings-dept">
+        <div class="settings-dept-title">Commercial HVAC</div>
+        <div class="field-row col-2">
+          <div class="field"><label>Direct Loaded Labor Rate ($/hr)</label><input type="number" id="set-hvac-labor" value="55"></div>
+          <div class="field"><label>Daily Breakeven ($)</label><input type="number" id="set-hvac-breakeven" value="5999"></div>
+        </div>
+        <div class="field-row col-2">
+          <div class="field"><label>GPMD Target ($/man-day)</label><input type="number" id="set-hvac-gpmd-target" value="1011"></div>
+          <div class="field"><label>YTD GPMD Actual ($/man-day)</label><input type="number" id="set-hvac-gpmd-actual" value="675"></div>
+        </div>
+        <div class="field-row col-2">
+          <div class="field"><label>Target Gross Margin %</label><input type="number" id="set-hvac-gm" value="60"></div>
+          <div class="field"><label>Default Contingency %</label><input type="number" id="set-hvac-contingency" value="5"></div>
+        </div>
+      </div>
+
+      <div class="settings-dept">
+        <div class="settings-dept-title">Company</div>
+        <div class="field-row col-2">
+          <div class="field"><label>Company Name (for PDF)</label><input type="text" id="set-company-name" value="Coastal Air Services"></div>
+          <div class="field"><label>Minimum Acceptable GM % (floor)</label><input type="number" id="set-min-gm" value="40"></div>
+        </div>
+      </div>
+
+      <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
+      <span id="settings-saved" style="margin-left:12px;font-size:13px;color:var(--green);display:none;">✓ Saved</span>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const CORRECT_PIN = '7897';
+let pinBuffer = '';
+let settings = {};
+let estimates = [];
+let currentEstimate = null;
+let lineItems = [];
+let editingIndex = null;
+
+function pinKey(k) {
+  const err = document.getElementById('pin-error');
+  if (k === 'clear') { pinBuffer = ''; } 
+  else if (k === 'back') { pinBuffer = pinBuffer.slice(0,-1); }
+  else if (pinBuffer.length < 4) { pinBuffer += k; }
+  updatePinDots();
+  if (pinBuffer.length === 4) {
+    if (pinBuffer === CORRECT_PIN) {
+      document.getElementById('pin-screen').style.display = 'none';
+      document.getElementById('app').style.display = 'block';
+      loadSettings(); loadEstimates();
+    } else {
+      err.textContent = 'Incorrect PIN';
+      setTimeout(() => { pinBuffer = ''; updatePinDots(); err.textContent = ''; }, 1000);
+    }
+  }
+}
+
+function updatePinDots() {
+  for (let i = 0; i < 4; i++) {
+    document.getElementById('d'+i).classList.toggle('filled', i < pinBuffer.length);
+  }
+}
+
+function showTab(t) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(s => s.classList.remove('active'));
+  document.getElementById('section-'+t).classList.add('active');
+  document.getElementById('tab-'+t).classList.add('active');
+}
+
+function goStep(n) {
+  for (let i = 1; i <= 4; i++) {
+    document.getElementById('panel-'+i).style.display = i === n ? 'block' : 'none';
+    const s = document.getElementById('step-'+i);
+    s.classList.remove('active','done');
+    if (i === n) s.classList.add('active');
+    else if (i < n) s.classList.add('done');
+  }
+  if (n === 4) calcFinal();
+  window.scrollTo(0,0);
+}
+
+function loadSettings() {
+  const saved = localStorage.getItem('ca_estimator_settings');
+  if (saved) settings = JSON.parse(saved);
+  else settings = {
+    plumbing: { labor: 55, breakeven: 2361, gpmdTarget: 731, gpmdActual: 594, gmTarget: 60, contingency: 5 },
+    commercial_hvac: { labor: 55, breakeven: 5999, gpmdTarget: 1011, gpmdActual: 675, gmTarget: 60, contingency: 5 },
+    company: { name: 'Coastal Air Services', minGM: 40 }
+  };
+  applySettingsToUI();
+}
+
+function applySettingsToUI() {
+  const p = settings.plumbing; const h = settings.commercial_hvac; const c = settings.company;
+  document.getElementById('set-plumbing-labor').value = p.labor;
+  document.getElementById('set-plumbing-breakeven').value = p.breakeven;
+  document.getElementById('set-plumbing-gpmd-target').value = p.gpmdTarget;
+  document.getElementById('set-plumbing-gpmd-actual').value = p.gpmdActual;
+  document.getElementById('set-plumbing-gm').value = p.gmTarget;
+  document.getElementById('set-plumbing-contingency').value = p.contingency;
+  document.getElementById('set-hvac-labor').value = h.labor;
+  document.getElementById('set-hvac-breakeven').value = h.breakeven;
+  document.getElementById('set-hvac-gpmd-target').value = h.gpmdTarget;
+  document.getElementById('set-hvac-gpmd-actual').value = h.gpmdActual;
+  document.getElementById('set-hvac-gm').value = h.gmTarget;
+  document.getElementById('set-hvac-contingency').value = h.contingency;
+  document.getElementById('set-company-name').value = c.name;
+  document.getElementById('set-min-gm').value = c.minGM;
+}
+
+function saveSettings() {
+  settings = {
+    plumbing: {
+      labor: +document.getElementById('set-plumbing-labor').value,
+      breakeven: +document.getElementById('set-plumbing-breakeven').value,
+      gpmdTarget: +document.getElementById('set-plumbing-gpmd-target').value,
+      gpmdActual: +document.getElementById('set-plumbing-gpmd-actual').value,
+      gmTarget: +document.getElementById('set-plumbing-gm').value,
+      contingency: +document.getElementById('set-plumbing-contingency').value
+    },
+    commercial_hvac: {
+      labor: +document.getElementById('set-hvac-labor').value,
+      breakeven: +document.getElementById('set-hvac-breakeven').value,
+      gpmdTarget: +document.getElementById('set-hvac-gpmd-target').value,
+      gpmdActual: +document.getElementById('set-hvac-gpmd-actual').value,
+      gmTarget: +document.getElementById('set-hvac-gm').value,
+      contingency: +document.getElementById('set-hvac-contingency').value
+    },
+    company: {
+      name: document.getElementById('set-company-name').value,
+      minGM: +document.getElementById('set-min-gm').value
+    }
+  };
+  localStorage.setItem('ca_estimator_settings', JSON.stringify(settings));
+  const el = document.getElementById('settings-saved');
+  el.style.display = 'inline'; setTimeout(() => el.style.display = 'none', 2000);
+}
+
+function loadEstimates() {
+  const saved = localStorage.getItem('ca_estimator_list');
+  estimates = saved ? JSON.parse(saved) : [];
+  renderEstimateList();
+}
+
+function renderEstimateList() {
+  const el = document.getElementById('estimates-list');
+  if (!estimates.length) {
+    el.innerHTML = '<div style="text-align:center;padding:60px 20px;color:var(--text3);"><div style="font-size:32px;margin-bottom:12px;">📋</div><div style="font-size:14px;">No estimates yet</div><div style="font-size:12px;margin-top:4px;">Click + New Estimate to get started</div></div>';
+    return;
+  }
+  el.innerHTML = estimates.map((e, i) => {
+    const gm = e.summary ? e.summary.gmPct : 0;
+    const cls = gm >= 55 ? 'badge-green' : gm >= 40 ? 'badge-yellow' : 'badge-red';
+    const deptLabel = e.department === 'commercial_hvac' ? 'Commercial HVAC' : 'Plumbing';
+    return `<div class="est-row" onclick="openEstimate(${i})">
+      <div class="est-info">
+        <div class="est-name">${e.estimateName || 'Untitled'} <span style="font-size:12px;font-weight:400;color:var(--text3);">Job #${e.jobNumber || '—'}</span></div>
+        <div class="est-meta">${e.customerName || '—'} &nbsp;·&nbsp; ${deptLabel} &nbsp;·&nbsp; ${e.savedAt || ''}</div>
+      </div>
+      <div>
+        <span class="badge ${cls}">${gm.toFixed(1)}% GM</span>
+      </div>
+      <div>
+        <div class="est-amount">${e.summary ? fmt(e.summary.finalQuote) : '—'}</div>
+        <div class="est-margin">${e.summary ? fmt(e.summary.gpDollars) + ' GP' : ''}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function newEstimate() {
+  editingIndex = null; lineItems = [];
+  document.getElementById('job-number').value = '';
+  document.getElementById('estimate-name').value = '';
+  document.getElementById('customer-name').value = '';
+  document.getElementById('customer-address').value = '';
+  document.getElementById('department').value = 'plumbing';
+  document.getElementById('job-type').value = '';
+  document.getElementById('scope-summary').value = '';
+  document.getElementById('internal-notes').value = '';
+  document.getElementById('st-customer-id').value = '';
+  document.getElementById('st-estimate-id').value = '';
+  document.getElementById('st-project-id').value = '';
+  document.getElementById('final-quote').value = '';
+  document.getElementById('override-reason').value = '';
+  updateDeptDefaults();
+  renderLineItems();
+  goStep(1);
+  showTab('builder');
+  document.getElementById('builder-headline').textContent = 'New Estimate';
+}
+
+function openEstimate(i) {
+  const e = estimates[i]; editingIndex = i; lineItems = e.lineItems || [];
+  document.getElementById('job-number').value = e.jobNumber || '';
+  document.getElementById('estimate-name').value = e.estimateName || '';
+  document.getElementById('customer-name').value = e.customerName || '';
+  document.getElementById('customer-address').value = e.customerAddress || '';
+  document.getElementById('department').value = e.department || 'plumbing';
+  document.getElementById('job-type').value = e.jobType || '';
+  document.getElementById('scope-summary').value = e.scopeSummary || '';
+  document.getElementById('internal-notes').value = e.internalNotes || '';
+  document.getElementById('st-customer-id').value = e.stCustomerId || '';
+  document.getElementById('st-estimate-id').value = e.stEstimateId || '';
+  document.getElementById('st-project-id').value = e.stProjectId || '';
+  document.getElementById('crew-size').value = e.crewSize || 2;
+  document.getElementById('est-days').value = e.estDays || 1;
+  document.getElementById('hours-per-day').value = e.hoursPerDay || 8;
+  document.getElementById('labor-rate').value = e.laborRate || 55;
+  document.getElementById('daily-breakeven').value = e.dailyBreakeven || 2361;
+  document.getElementById('gpmd-target-field').value = e.gpmdTarget || 731;
+  document.getElementById('c-materials').value = e.cMaterials || 0;
+  document.getElementById('c-equipment').value = e.cEquipment || 0;
+  document.getElementById('c-subs').value = e.cSubs || 0;
+  document.getElementById('c-permits').value = e.cPermits || 0;
+  document.getElementById('c-restoration').value = e.cRestoration || 0;
+  document.getElementById('c-disposal').value = e.cDisposal || 0;
+  document.getElementById('c-rental').value = e.cRental || 0;
+  document.getElementById('c-misc').value = e.cMisc || 0;
+  document.getElementById('contingency-pct').value = e.contingencyPct || 5;
+  document.getElementById('final-quote').value = e.finalQuoteOverride || '';
+  document.getElementById('override-reason').value = e.overrideReason || '';
+  calcLabor(); calcCosts(); renderLineItems();
+  document.getElementById('builder-headline').textContent = e.estimateName || 'Edit Estimate';
+  goStep(1); showTab('builder');
+}
+
+function updateDeptDefaults() {
+  const dept = document.getElementById('department').value;
+  const s = settings[dept] || {};
+  document.getElementById('labor-rate').value = s.labor || 55;
+  document.getElementById('daily-breakeven').value = s.breakeven || (dept === 'commercial_hvac' ? 5999 : 2361);
+  document.getElementById('gpmd-target-field').value = s.gpmdTarget || (dept === 'commercial_hvac' ? 1011 : 731);
+  document.getElementById('contingency-pct').value = s.contingency || 5;
+  calcLabor();
+}
+
+function calcLabor() {
+  const crew = +document.getElementById('crew-size').value || 0;
+  const days = +document.getElementById('est-days').value || 0;
+  const hrs = +document.getElementById('hours-per-day').value || 8;
+  const rate = +document.getElementById('labor-rate').value || 55;
+  const breakeven = +document.getElementById('daily-breakeven').value || 0;
+  const gpmdTarget = +document.getElementById('gpmd-target-field').value || 0;
+  const manDays = crew * days;
+  const totalHours = manDays * hrs;
+  const laborCost = totalHours * rate;
+  const breakevenCoverage = days * breakeven;
+  const targetLaborGP = manDays * gpmdTarget;
+  const minLaborPrice = laborCost + breakevenCoverage;
+  document.getElementById('man-days').value = manDays.toFixed(1);
+  document.getElementById('total-hours').value = totalHours.toFixed(1);
+  document.getElementById('s-labor-cost').textContent = fmt(laborCost);
+  document.getElementById('s-labor-sub').textContent = `${totalHours.toFixed(0)} hrs × $${rate}/hr`;
+  document.getElementById('s-breakeven').textContent = fmt(breakevenCoverage);
+  document.getElementById('s-breakeven-sub').textContent = `${days} day${days !== 1 ? 's' : ''} × $${breakeven.toLocaleString()}/day`;
+  document.getElementById('s-target-gp').textContent = fmt(targetLaborGP);
+  document.getElementById('s-min-labor').textContent = fmt(minLaborPrice);
+}
+
+function calcCosts() {
+  const vals = ['c-materials','c-equipment','c-subs','c-permits','c-restoration','c-disposal','c-rental','c-misc'];
+  const nonLaborBase = vals.reduce((a, id) => a + (+document.getElementById(id).value || 0), 0);
+  const lineTotal = lineItems.reduce((a, li) => a + (+li.cost || 0), 0);
+  const totalNonLabor = nonLaborBase + lineTotal;
+  const contingencyPct = +document.getElementById('contingency-pct').value || 0;
+  const crew = +document.getElementById('crew-size').value || 0;
+  const days = +document.getElementById('est-days').value || 0;
+  const hrs = +document.getElementById('hours-per-day').value || 8;
+  const rate = +document.getElementById('labor-rate').value || 55;
+  const breakeven = +document.getElementById('daily-breakeven').value || 0;
+  const laborCost = crew * days * hrs * rate;
+  const contingencyDollars = (laborCost + totalNonLabor) * (contingencyPct / 100);
+  const totalDirectCosts = laborCost + totalNonLabor + contingencyDollars;
+  const breakevenCoverage = days * breakeven;
+  const minAcceptablePrice = totalDirectCosts + breakevenCoverage;
+  document.getElementById('s-nonlabor').textContent = fmt(totalNonLabor);
+  document.getElementById('s-contingency').textContent = fmt(contingencyDollars);
+  document.getElementById('s-direct-costs').textContent = fmt(totalDirectCosts);
+  document.getElementById('s-min-price').textContent = fmt(minAcceptablePrice);
+}
+
+function calcFinal() {
+  calcLabor(); calcCosts();
+  const crew = +document.getElementById('crew-size').value || 0;
+  const days = +document.getElementById('est-days').value || 0;
+  const hrs = +document.getElementById('hours-per-day').value || 8;
+  const rate = +document.getElementById('labor-rate').value || 55;
+  const breakeven = +document.getElementById('daily-breakeven').value || 0;
+  const gpmdTarget = +document.getElementById('gpmd-target-field').value || 0;
+  const contingencyPct = +document.getElementById('contingency-pct').value || 0;
+  const vals = ['c-materials','c-equipment','c-subs','c-permits','c-restoration','c-disposal','c-rental','c-misc'];
+  const nonLaborBase = vals.reduce((a, id) => a + (+document.getElementById(id).value || 0), 0);
+  const lineTotal = lineItems.reduce((a, li) => a + (+li.cost || 0), 0);
+  const totalNonLabor = nonLaborBase + lineTotal;
+  const manDays = crew * days;
+  const laborCost = manDays * hrs * rate;
+  const contingencyDollars = (laborCost + totalNonLabor) * (contingencyPct / 100);
+  const totalDirectCosts = laborCost + totalNonLabor + contingencyDollars;
+  const breakevenCoverage = days * breakeven;
+  const dept = document.getElementById('department').value;
+  const s = settings[dept] || {};
+
+  // Price at 40%, 60%, and recommended
+  const price40 = totalDirectCosts / 0.60;
+  const price60 = totalDirectCosts / 0.40;
+  const targetGM = (s.gmTarget || 60) / 100;
+  const priceRec = totalDirectCosts / (1 - targetGM);
+
+  document.getElementById('price-40').textContent = fmt(price40);
+  document.getElementById('price-60').textContent = fmt(price60);
+  document.getElementById('price-rec').textContent = fmt(priceRec);
+  const overrideVal = +document.getElementById('final-quote').value;
+  const finalQuote = overrideVal > 0 ? overrideVal : priceRec;
+  const gpDollars = finalQuote - totalDirectCosts;
+  const gmPct = finalQuote > 0 ? (gpDollars / finalQuote) * 100 : 0;
+  const gpmdJob = manDays > 0 ? gpDollars / manDays : 0;
+  const minAcceptablePrice = totalDirectCosts + breakevenCoverage;
+
+  // Update stats
+  const gmColor = gmPct >= 55 ? 'var(--green)' : gmPct >= 40 ? 'var(--yellow)' : 'var(--red)';
+  document.getElementById('s-gp-dollars').textContent = fmt(gpDollars);
+  document.getElementById('s-gp-dollars').style.color = gmColor;
+  document.getElementById('s-gm-pct').textContent = gmPct.toFixed(1) + '%';
+  document.getElementById('s-gm-pct').style.color = gmColor;
+  document.getElementById('gm-bar').style.width = Math.min(gmPct, 100) + '%';
+  document.getElementById('gm-bar').style.background = gmColor;
+  document.getElementById('s-gpmd-job').textContent = fmt(gpmdJob);
+  document.getElementById('s-gpmd-job').style.color = gmColor;
+  const beOK = finalQuote >= minAcceptablePrice;
+  document.getElementById('s-be-coverage').textContent = beOK ? '✓ Covered' : '✗ Below min';
+  document.getElementById('s-be-coverage').style.color = beOK ? 'var(--green)' : 'var(--red)';
+
+  // Alerts
+  const alerts = [];
+  if (gmPct < (settings.company?.minGM || 40)) alerts.push({ type:'red', msg:`⚠ Gross margin ${gmPct.toFixed(1)}% is below the minimum acceptable floor of ${settings.company?.minGM || 40}%.` });
+  if (finalQuote < minAcceptablePrice) alerts.push({ type:'red', msg:`⚠ Price is below minimum acceptable ($${Math.round(minAcceptablePrice).toLocaleString()}). Does not cover direct costs + breakeven.` });
+  if (gmPct < 50 && gmPct >= 40) alerts.push({ type:'yellow', msg:`⚡ Margin is lean (${gmPct.toFixed(1)}%). Make sure this job has a clear reason to accept below target.` });
+  if (gmPct >= 55) alerts.push({ type:'green', msg:`✓ Healthy margin — this job is performing well against target.` });
+  if (overrideVal > 0 && !document.getElementById('override-reason').value.trim()) alerts.push({ type:'yellow', msg:`Override reason is required when manually adjusting the final quote.` });
+  document.getElementById('health-alerts').innerHTML = alerts.map(a => `<div class="alert alert-${a.type}">${a.msg}</div>`).join('');
+
+  // GPMD Analysis
+  const gpmdActual = s.gpmdActual || (dept === 'commercial_hvac' ? 675 : 594);
+  const gpmdTargetVal = +document.getElementById('gpmd-target-field').value;
+  const maxGPMD = Math.max(gpmdActual, gpmdJob, gpmdTargetVal, 1);
+  const pctYTD = Math.min((gpmdActual / maxGPMD) * 100, 100);
+  const pctJob = Math.min((gpmdJob / maxGPMD) * 100, 100);
+  const pctTarget = Math.min((gpmdTargetVal / maxGPMD) * 100, 100);
+  document.getElementById('gpmd-bar-ytd').style.width = pctYTD + '%';
+  document.getElementById('gpmd-bar-job').style.width = pctJob + '%';
+  document.getElementById('gpmd-bar-target').style.width = pctTarget + '%';
+  document.getElementById('gpmd-v-ytd').textContent = fmt(gpmdActual);
+  document.getElementById('gpmd-v-job').textContent = fmt(gpmdJob);
+  document.getElementById('gpmd-v-target').textContent = fmt(gpmdTargetVal);
+  const deltaYTD = gpmdActual - gpmdTargetVal;
+  const deltaJob = gpmdJob - gpmdTargetVal;
+  document.getElementById('gpmd-d-ytd').textContent = (deltaYTD >= 0 ? '+' : '') + '$' + Math.round(Math.abs(deltaYTD)).toLocaleString() + (deltaYTD >= 0 ? ' above' : ' below');
+  document.getElementById('gpmd-d-ytd').style.color = deltaYTD >= 0 ? 'var(--green)' : 'var(--red)';
+  document.getElementById('gpmd-d-job').textContent = (deltaJob >= 0 ? '+' : '') + '$' + Math.round(Math.abs(deltaJob)).toLocaleString() + (deltaJob >= 0 ? ' above' : ' below');
+  document.getElementById('gpmd-d-job').style.color = deltaJob >= 0 ? 'var(--green)' : 'var(--red)';
+
+  // GPMD Narrative
+  let narrative = '';
+  if (gpmdJob >= gpmdTargetVal) {
+    narrative = `This job is pricing above your GPMD target of ${fmt(gpmdTargetVal)}/man-day, delivering ${fmt(gpmdJob)}/man-day. `;
+    if (gpmdActual < gpmdTargetVal) narrative += `Your YTD average is currently ${fmt(gpmdActual)}, which is $${Math.round(gpmdTargetVal - gpmdActual).toLocaleString()} below target — jobs like this help close that gap.`;
+    else narrative += `Your YTD average of ${fmt(gpmdActual)} is already above target. This job maintains that momentum.`;
+  } else if (gpmdJob >= gpmdActual) {
+    narrative = `This job prices at ${fmt(gpmdJob)}/man-day — below your GPMD target of ${fmt(gpmdTargetVal)} but above your YTD actual of ${fmt(gpmdActual)}. Selling at this price would improve your running average.`;
+  } else {
+    narrative = `This job prices at ${fmt(gpmdJob)}/man-day, which is below both your GPMD target (${fmt(gpmdTargetVal)}) and your YTD actual (${fmt(gpmdActual)}). Selling at this price will pull your average down. If you proceed, make sure there's a strategic reason (relationship, volume, competitive necessity).`;
+  }
+  document.getElementById('gpmd-narrative').textContent = narrative;
+
+  // Breakdown table — hide zero rows
+  const costFields2 = [
+    ['Direct Labor', laborCost],
+    ['Materials', +document.getElementById('c-materials').value || 0],
+    ['Equipment / Fixtures', +document.getElementById('c-equipment').value || 0],
+    ['Subcontractors', +document.getElementById('c-subs').value || 0],
+    ['Permits', +document.getElementById('c-permits').value || 0],
+    ['Restoration', +document.getElementById('c-restoration').value || 0],
+    ['Disposal', +document.getElementById('c-disposal').value || 0],
+    ['Rental Equipment', +document.getElementById('c-rental').value || 0],
+    ['Miscellaneous', +document.getElementById('c-misc').value || 0],
+  ];
+  const rows = costFields2.filter(f => f[1] > 0).map(f => [f[0], fmt(f[1])]);
+  lineItems.forEach(li => { if (+li.cost > 0) rows.push([li.description + (li.category ? ` (${li.category})` : ''), fmt(+li.cost || 0)]); });
+  rows.push(['Contingency (' + contingencyPct + '%)', fmt(contingencyDollars)]);
+  rows.push(['<strong>Total Direct Costs</strong>', '<strong>' + fmt(totalDirectCosts) + '</strong>']);
+  rows.push(['<strong>Final Quote</strong>', '<strong>' + fmt(finalQuote) + '</strong>']);
+  rows.push(['<strong>Gross Profit</strong>', `<strong style="color:${gmColor}">${fmt(gpDollars)}</strong>`]);
+  rows.push(['<strong>Gross Margin %</strong>', `<strong style="color:${gmColor}">${gmPct.toFixed(1)}%</strong>`]);
+  rows.push(['<strong>GPMD This Job</strong>', `<strong style="color:${gmColor}">${fmt(gpmdJob)}/man-day</strong>`]);
+  document.getElementById('breakdown-body').innerHTML = rows.map(r =>
+    `<tr><td style="color:var(--text2)">${r[0]}</td><td style="text-align:right;font-family:'IBM Plex Mono',monospace;">${r[1]}</td></tr>`
+  ).join('');
+
+  // Store summary on window for save/PDF
+  window._calcSummary = { finalQuote, gpDollars, gmPct, gpmdJob, gpmdActual, gpmdTargetVal, totalDirectCosts, laborCost, totalNonLabor, contingencyDollars, manDays, breakevenCoverage, minAcceptablePrice, price40, price60, priceRec };
+
+  // Init slider to current final GM
+  const sliderEl = document.getElementById('gm-slider');
+  if (sliderEl) { sliderEl.value = Math.min(Math.max(Math.round(gmPct), 40), 60); onSliderMove(sliderEl.value); }
+}
+
+function onSliderMove(val) {
+  val = +val;
+  const dc = window._calcSummary ? window._calcSummary.totalDirectCosts : 0;
+  const manDays = window._calcSummary ? window._calcSummary.manDays : 1;
+  const gpmdTarget = window._calcSummary ? window._calcSummary.gpmdTargetVal : 731;
+  const gpmdActual = window._calcSummary ? window._calcSummary.gpmdActual : 594;
+  if (!dc) return;
+  const price = dc / (1 - val / 100);
+  const gp = price - dc;
+  const gpmd = manDays > 0 ? gp / manDays : 0;
+  const color = val >= 55 ? 'var(--green)' : val >= 45 ? 'var(--yellow)' : 'var(--red)';
+  document.getElementById('slider-gm').textContent = val + '%';
+  document.getElementById('slider-gm').style.color = color;
+  document.getElementById('slider-price').textContent = fmt(price);
+  document.getElementById('slider-price').style.color = color;
+  document.getElementById('slider-gp').textContent = fmt(gp);
+  document.getElementById('slider-gp').style.color = color;
+  document.getElementById('slider-gpmd').textContent = fmt(gpmd);
+  document.getElementById('slider-gpmd').style.color = color;
+  let ctx = '';
+  if (gpmd >= gpmdTarget) ctx = `At ${val}% GM, this job delivers ${fmt(gpmd)}/man-day — above your GPMD target of ${fmt(gpmdTarget)}.`;
+  else if (gpmd >= gpmdActual) ctx = `At ${val}% GM, this job delivers ${fmt(gpmd)}/man-day — below your target of ${fmt(gpmdTarget)} but above your YTD actual of ${fmt(gpmdActual)}. Would improve your running average.`;
+  else ctx = `At ${val}% GM, this job delivers ${fmt(gpmd)}/man-day — below both your target (${fmt(gpmdTarget)}) and YTD actual (${fmt(gpmdActual)}). Would pull your average down.`;
+  document.getElementById('slider-context').textContent = ctx;
+}
+
+function addLineItem() {
+  lineItems.push({ description: '', category: 'Other', cost: 0, vendor: '', notes: '' });
+  renderLineItems(); calcCosts();
+}
+
+function renderLineItems() {
+  const tbody = document.getElementById('line-items-body');
+  const empty = document.getElementById('line-items-empty');
+  if (!lineItems.length) { tbody.innerHTML = ''; empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  tbody.innerHTML = lineItems.map((li, i) => `
+    <tr>
+      <td><input type="text" value="${li.description}" onchange="lineItems[${i}].description=this.value" placeholder="Description" /></td>
+      <td>
+        <select onchange="lineItems[${i}].category=this.value" style="font-size:13px;padding:6px 8px;">
+          ${['Materials','Labor','Equipment','Sub','Permit','Other'].map(c => `<option${c===li.category?' selected':''}>${c}</option>`).join('')}
+        </select>
+      </td>
+      <td><input type="number" value="${li.cost}" oninput="lineItems[${i}].cost=+this.value;calcCosts()" /></td>
+      <td><input type="text" value="${li.vendor||''}" onchange="lineItems[${i}].vendor=this.value" placeholder="Vendor / Quote #" /></td>
+      <td><input type="text" value="${li.notes}" onchange="lineItems[${i}].notes=this.value" placeholder="Notes" /></td>
+      <td><button class="del-btn" onclick="lineItems.splice(${i},1);renderLineItems();calcCosts()">✕</button></td>
+    </tr>
+  `).join('');
+}
+
+function saveEstimate() {
+  if (!window._calcSummary) calcFinal();
+  const e = {
+    jobNumber: document.getElementById('job-number').value,
+    estimateName: document.getElementById('estimate-name').value || 'Untitled',
+    customerName: document.getElementById('customer-name').value,
+    customerAddress: document.getElementById('customer-address').value,
+    department: document.getElementById('department').value,
+    jobType: document.getElementById('job-type').value,
+    scopeSummary: document.getElementById('scope-summary').value,
+    internalNotes: document.getElementById('internal-notes').value,
+    stCustomerId: document.getElementById('st-customer-id').value,
+    stEstimateId: document.getElementById('st-estimate-id').value,
+    stProjectId: document.getElementById('st-project-id').value,
+    crewSize: +document.getElementById('crew-size').value,
+    estDays: +document.getElementById('est-days').value,
+    hoursPerDay: +document.getElementById('hours-per-day').value,
+    laborRate: +document.getElementById('labor-rate').value,
+    dailyBreakeven: +document.getElementById('daily-breakeven').value,
+    gpmdTarget: +document.getElementById('gpmd-target-field').value,
+    cMaterials: +document.getElementById('c-materials').value,
+    cEquipment: +document.getElementById('c-equipment').value,
+    cSubs: +document.getElementById('c-subs').value,
+    cPermits: +document.getElementById('c-permits').value,
+    cRestoration: +document.getElementById('c-restoration').value,
+    cDisposal: +document.getElementById('c-disposal').value,
+    cRental: +document.getElementById('c-rental').value,
+    cMisc: +document.getElementById('c-misc').value,
+    vMaterialsVendor: document.getElementById('v-materials-vendor').value,
+    vMaterialsQuote: document.getElementById('v-materials-quote').value,
+    vMaterialsNotes: document.getElementById('v-materials-notes').value,
+    vEquipmentVendor: document.getElementById('v-equipment-vendor').value,
+    vEquipmentQuote: document.getElementById('v-equipment-quote').value,
+    vEquipmentNotes: document.getElementById('v-equipment-notes').value,
+    vSubsVendor: document.getElementById('v-subs-vendor').value,
+    vSubsQuote: document.getElementById('v-subs-quote').value,
+    vSubsNotes: document.getElementById('v-subs-notes').value,
+    contingencyPct: +document.getElementById('contingency-pct').value,
+    finalQuoteOverride: +document.getElementById('final-quote').value || null,
+    overrideReason: document.getElementById('override-reason').value,
+    lineItems: [...lineItems],
+    summary: window._calcSummary,
+    savedAt: new Date().toLocaleDateString()
+  };
+  if (editingIndex !== null) estimates[editingIndex] = e;
+  else { estimates.unshift(e); editingIndex = 0; }
+  localStorage.setItem('ca_estimator_list', JSON.stringify(estimates));
+  renderEstimateList();
+  const btn = document.querySelector('[onclick="saveEstimate()"]');
+  if (btn) { const orig = btn.textContent; btn.textContent = '✓ Saved'; setTimeout(() => btn.textContent = orig, 1500); }
+}
+
+function generatePDF() {
+  if (!window._calcSummary) calcFinal();
+  const c = window._calcSummary;
+  const companyName = settings.company?.name || 'Coastal Air Services';
+  const dept = document.getElementById('department').value === 'commercial_hvac' ? 'Commercial HVAC' : 'Plumbing';
+  const jobNum = document.getElementById('job-number').value;
+  const estName = document.getElementById('estimate-name').value;
+  const customer = document.getElementById('customer-name').value;
+  const address = document.getElementById('customer-address').value;
+  const jobType = document.getElementById('job-type').value.replace(/_/g,' ').replace(/\b\w/g,l=>l.toUpperCase());
+  const scope = document.getElementById('scope-summary').value;
+  const notes = document.getElementById('internal-notes').value;
+  const stCustomer = document.getElementById('st-customer-id').value;
+  const stEstimate = document.getElementById('st-estimate-id').value;
+  const stProject = document.getElementById('st-project-id').value;
+  const overrideReason = document.getElementById('override-reason').value;
+  const crew = document.getElementById('crew-size').value;
+  const days = document.getElementById('est-days').value;
+  const hrs = document.getElementById('hours-per-day').value;
+  const rate = document.getElementById('labor-rate').value;
+  const manDays = document.getElementById('man-days').value;
+  const contingencyPct = document.getElementById('contingency-pct').value;
+  const gmColor = c.gmPct >= 55 ? '#16a34a' : c.gmPct >= 40 ? '#d97706' : '#dc2626';
+
+  const vMatVendor = document.getElementById('v-materials-vendor').value;
+  const vMatQuote = document.getElementById('v-materials-quote').value;
+  const vMatNotes = document.getElementById('v-materials-notes').value;
+  const vEqVendor = document.getElementById('v-equipment-vendor').value;
+  const vEqQuote = document.getElementById('v-equipment-quote').value;
+  const vEqNotes = document.getElementById('v-equipment-notes').value;
+  const vSubVendor = document.getElementById('v-subs-vendor').value;
+  const vSubQuote = document.getElementById('v-subs-quote').value;
+  const vSubNotes = document.getElementById('v-subs-notes').value;
+
+  const costRows = [
+    { label: 'Materials', val: +document.getElementById('c-materials').value, vendor: vMatVendor, quote: vMatQuote, notes: vMatNotes },
+    { label: 'Equipment / Fixtures', val: +document.getElementById('c-equipment').value, vendor: vEqVendor, quote: vEqQuote, notes: vEqNotes },
+    { label: 'Subcontractors', val: +document.getElementById('c-subs').value, vendor: vSubVendor, quote: vSubQuote, notes: vSubNotes },
+    { label: 'Permits', val: +document.getElementById('c-permits').value },
+    { label: 'Restoration', val: +document.getElementById('c-restoration').value },
+    { label: 'Disposal', val: +document.getElementById('c-disposal').value },
+    { label: 'Rental Equipment', val: +document.getElementById('c-rental').value },
+    { label: 'Miscellaneous', val: +document.getElementById('c-misc').value },
+  ].filter(r => r.val > 0);
+
+  lineItems.forEach(li => { if (+li.cost > 0) costRows.push({ label: li.description + (li.category ? ` (${li.category})` : ''), val: +li.cost, vendor: li.vendor, notes: li.notes }); });
+
+  const row = (label, value, bold) => `
+    <tr>
+      <td style="padding:5px 8px;color:#555;font-size:12px;${bold?'font-weight:600;color:#111;':''}">${label}</td>
+      <td style="padding:5px 8px;text-align:right;font-family:monospace;font-size:12px;${bold?'font-weight:600;color:#111;':''}">${value}</td>
+    </tr>`;
+
+  const vendorDetail = (r) => {
+    const parts = [r.vendor, r.quote ? 'Quote #' + r.quote : '', r.notes].filter(Boolean).join(' · ');
+    return parts ? `<tr><td colspan="2" style="padding:1px 8px 6px 20px;font-size:10px;color:#888;font-style:italic;">${parts}</td></tr>` : '';
+  };
+
+  const html = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Estimate — ${estName || jobNum}</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: Arial, sans-serif; font-size:13px; color:#111; background:#fff; }
+  .page { padding: 40px 48px; max-width: 780px; margin: 0 auto; }
+  .header { background:#0f1117; color:#fff; padding:20px 48px; display:flex; justify-content:space-between; align-items:center; }
+  .header-left h1 { font-size:20px; font-weight:700; }
+  .header-left p { font-size:11px; color:#aab; margin-top:3px; }
+  .header-right { text-align:right; font-size:11px; color:#aab; }
+  .job-title { padding: 20px 0 6px; font-size:18px; font-weight:700; }
+  .job-meta { font-size:12px; color:#666; padding-bottom:16px; border-bottom:1px solid #e5e5e5; }
+  .boxes { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin:16px 0; }
+  .box { background:#f7f8fa; border:1px solid #e5e5e5; border-radius:6px; padding:12px; text-align:center; }
+  .box-label { font-size:9px; color:#888; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:4px; }
+  .box-value { font-size:16px; font-weight:700; font-family:monospace; }
+  .divider { border:none; border-top:1px solid #e5e5e5; margin:14px 0; }
+  .section-title { font-size:9px; font-weight:700; color:#888; text-transform:uppercase; letter-spacing:0.1em; margin:16px 0 8px; }
+  table { width:100%; border-collapse:collapse; }
+  .summary-box { background:#f7f8fa; border:1px solid #e5e5e5; border-radius:4px; padding:6px 8px; margin-top:4px; }
+  .narrative { background:#f0f4f0; border-left:3px solid #16a34a; padding:10px 12px; font-size:11px; color:#333; line-height:1.6; margin-top:8px; border-radius:0 4px 4px 0; }
+  .narrative.warn { background:#fdf4e7; border-left-color:#d97706; }
+  .narrative.bad { background:#fef2f2; border-left-color:#dc2626; }
+  .scope-box { background:#f7f8fa; border:1px solid #e5e5e5; border-radius:4px; padding:10px 12px; font-size:12px; color:#444; line-height:1.6; margin-bottom:10px; }
+  .footer { margin-top:30px; padding-top:10px; border-top:1px solid #e5e5e5; font-size:9px; color:#aaa; display:flex; justify-content:space-between; }
+  @media print {
+    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .no-print { display:none; }
+  }
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-left">
+    <h1>${companyName}</h1>
+    <p>Project Estimate — Internal Use Only</p>
+  </div>
+  <div class="header-right">
+    <div>${new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'})}</div>
+    <div>ST Job #: ${jobNum || '—'}</div>
+  </div>
+</div>
+
+<div class="page">
+  <div class="job-title">${estName || ('Estimate — Job #' + jobNum)}</div>
+  <div class="job-meta">
+    ${[customer, address].filter(Boolean).join(' · ')}${dept ? ' &nbsp;·&nbsp; ' + dept : ''}${jobType ? ' &nbsp;·&nbsp; ' + jobType : ''}
+  </div>
+
+  <div class="boxes">
+    <div class="box"><div class="box-label">Final Quote</div><div class="box-value" style="color:#111;">${fmt(c.finalQuote)}</div></div>
+    <div class="box"><div class="box-label">Gross Profit</div><div class="box-value" style="color:${gmColor};">${fmt(c.gpDollars)}</div></div>
+    <div class="box"><div class="box-label">Gross Margin</div><div class="box-value" style="color:${gmColor};">${c.gmPct.toFixed(1)}%</div></div>
+    <div class="box"><div class="box-label">GPMD This Job</div><div class="box-value" style="color:#111;">${fmt(c.gpmdJob)}/md</div></div>
+  </div>
+
+  <hr class="divider">
+
+  ${scope ? `<div class="section-title">Scope Summary</div><div class="scope-box">${scope.replace(/\n/g,'<br>')}</div>` : ''}
+
+  ${(stCustomer || stEstimate || stProject) ? `
+  <div class="section-title">ServiceTitan References</div>
+  <table>${stCustomer ? row('Customer ID', stCustomer) : ''}${stEstimate ? row('Estimate ID', stEstimate) : ''}${stProject ? row('Project ID', stProject) : ''}</table>
+  <hr class="divider">` : ''}
+
+  <div class="section-title">Labor Assumptions</div>
+  <table>
+    ${row('Crew Size', crew + ' technicians')}
+    ${row('Estimated Duration', days + ' day' + (days != 1 ? 's' : ''))}
+    ${row('Hours Per Day', hrs + ' hrs/day')}
+    ${row('Man-Days', manDays)}
+    ${row('Direct Loaded Labor Rate', '$' + rate + '/hr')}
+    ${row('Total Labor Cost', fmt(c.laborCost), true)}
+  </table>
+  <hr class="divider">
+
+  <div class="section-title">Project Costs</div>
+  <table>
+    ${costRows.map(r => row(r.label, fmt(r.val)) + vendorDetail(r)).join('')}
+    ${row('Contingency (' + contingencyPct + '%)', fmt(c.contingencyDollars))}
+    ${row('Total Non-Labor Costs', fmt(c.totalNonLabor), true)}
+  </table>
+  <hr class="divider">
+
+  <div class="section-title">Pricing Summary</div>
+  <table>
+    ${row('Total Direct Costs', fmt(c.totalDirectCosts))}
+    ${row('Minimum Acceptable Price', fmt(c.minAcceptablePrice))}
+    ${row('Price at 40% Gross Margin', fmt(c.price40))}
+    ${row('Price at 60% Gross Margin', fmt(c.price60))}
+    ${row('Recommended Price (Target GM)', fmt(c.priceRec))}
+    <tr><td colspan="2" style="padding:4px;"></td></tr>
+    <tr style="background:#f7f8fa;">
+      <td style="padding:8px;font-weight:700;font-size:14px;">FINAL QUOTE</td>
+      <td style="padding:8px;text-align:right;font-weight:700;font-size:14px;font-family:monospace;">${fmt(c.finalQuote)}</td>
+    </tr>
+    ${overrideReason ? `<tr><td colspan="2" style="padding:3px 8px;font-size:10px;color:#92600a;font-style:italic;">Override reason: ${overrideReason}</td></tr>` : ''}
+    ${row('Gross Profit', fmt(c.gpDollars))}
+    <tr><td style="padding:5px 8px;font-weight:600;font-size:13px;">Gross Margin %</td><td style="padding:5px 8px;text-align:right;font-weight:700;font-size:14px;font-family:monospace;color:${gmColor};">${c.gmPct.toFixed(1)}%</td></tr>
+    ${row('GPMD This Job', fmt(c.gpmdJob) + '/man-day')}
+  </table>
+  <hr class="divider">
+
+  <div class="section-title">GPMD Analysis</div>
+  <table>
+    ${row('GPMD Target', fmt(c.gpmdTargetVal) + '/man-day')}
+    ${row('YTD Actual GPMD', fmt(c.gpmdActual) + '/man-day')}
+    ${row('This Job GPMD', fmt(c.gpmdJob) + '/man-day', true)}
+  </table>
+  <div class="narrative ${c.gpmdJob >= c.gpmdTargetVal ? '' : c.gpmdJob >= c.gpmdActual ? 'warn' : 'bad'}">
+    ${c.gpmdJob >= c.gpmdTargetVal
+      ? `This job prices above your GPMD target of ${fmt(c.gpmdTargetVal)}/man-day, delivering ${fmt(c.gpmdJob)}/man-day. ${c.gpmdActual < c.gpmdTargetVal ? `Your YTD average is ${fmt(c.gpmdActual)} — $${Math.round(c.gpmdTargetVal - c.gpmdActual).toLocaleString()} below target. Jobs like this help close that gap.` : `Your YTD average of ${fmt(c.gpmdActual)} is already above target. This job maintains that momentum.`}`
+      : c.gpmdJob >= c.gpmdActual
+        ? `This job prices at ${fmt(c.gpmdJob)}/man-day — below your GPMD target of ${fmt(c.gpmdTargetVal)} but above your YTD actual of ${fmt(c.gpmdActual)}. Selling at this price would improve your running average.`
+        : `This job prices at ${fmt(c.gpmdJob)}/man-day, below both your GPMD target (${fmt(c.gpmdTargetVal)}) and YTD actual (${fmt(c.gpmdActual)}). Selling at this price will pull your average down. Make sure there is a strategic reason to proceed.`
+    }
+  </div>
+
+  ${notes ? `<hr class="divider"><div class="section-title">Internal Notes</div><div class="scope-box">${notes.replace(/\n/g,'<br>')}</div>` : ''}
+
+  <div class="footer">
+    <span>INTERNAL USE ONLY — ${companyName} — Project Estimator</span>
+    <span>Generated ${new Date().toLocaleString()}</span>
+  </div>
+
+  <div class="no-print" style="margin-top:30px;text-align:center;">
+    <button onclick="window.print()" style="background:#6366f1;color:#fff;border:none;padding:12px 28px;border-radius:6px;font-size:14px;cursor:pointer;margin-right:10px;">🖨 Print / Save as PDF</button>
+    <button onclick="window.close()" style="background:#e5e5e5;color:#333;border:none;padding:12px 20px;border-radius:6px;font-size:14px;cursor:pointer;">Close</button>
+  </div>
+</div>
+</body>
+</html>`;
+
+  const win = window.open('', '_blank');
+  win.document.write(html);
+  win.document.close();
+  setTimeout(() => win.print(), 800);
+}
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'pt', format: 'letter' });
+  const c = window._calcSummary;
+  const companyName = settings.company?.name || 'Coastal Air Services';
+  const dept = document.getElementById('department').value === 'commercial_hvac' ? 'Commercial HVAC' : 'Plumbing';
+  const jobNum = document.getElementById('job-number').value;
+  const estName = document.getElementById('estimate-name').value;
+  const customer = document.getElementById('customer-name').value;
+  const address = document.getElementById('customer-address').value;
+  const jobType = document.getElementById('job-type').value.replace(/_/g,' ').replace(/\b\w/g,l=>l.toUpperCase());
+  const scope = document.getElementById('scope-summary').value;
+  const notes = document.getElementById('internal-notes').value;
+  const stCustomer = document.getElementById('st-customer-id').value;
+  const stEstimate = document.getElementById('st-estimate-id').value;
+  const stProject = document.getElementById('st-project-id').value;
+  const overrideReason = document.getElementById('override-reason').value;
+  const crew = document.getElementById('crew-size').value;
+  const days = document.getElementById('est-days').value;
+  const hrs = document.getElementById('hours-per-day').value;
+  const rate = document.getElementById('labor-rate').value;
+  const manDays = document.getElementById('man-days').value;
+  const contingencyPct = document.getElementById('contingency-pct').value;
+  const gmColor = c.gmPct >= 55 ? [34,197,94] : c.gmPct >= 40 ? [245,158,11] : [239,68,68];
+
+  const pageH = doc.internal.pageSize.height;
+  const ml = 50; const mr = 562;
+  let y = 40;
+
+  const checkPage = (needed) => {
+    if (y + needed > pageH - 50) {
+      doc.addPage();
+      y = 40;
+    }
+  };
+
+  const line = () => {
+    checkPage(20);
+    doc.setDrawColor(220,220,220); doc.setLineWidth(0.5); doc.line(ml, y, mr, y); y += 12;
+  };
+  const sectionTitle = (t) => {
+    checkPage(30);
+    y += 6; doc.setFontSize(9); doc.setFont('helvetica','bold'); doc.setTextColor(100,100,120);
+    doc.text(t.toUpperCase(), ml, y); y += 14; doc.setTextColor(30,30,30);
+  };
+  const row = (label, value, bold = false) => {
+    checkPage(20);
+    doc.setFontSize(10); doc.setFont('helvetica', bold ? 'bold' : 'normal'); doc.setTextColor(80,80,100);
+    doc.text(String(label), ml, y); doc.setTextColor(30,30,30); doc.text(String(value), mr, y, { align: 'right' }); y += 16;
+  };
+
+  // Header
+  doc.setFillColor(15,17,23); doc.rect(0,0,612,70,'F');
+  doc.setFontSize(18); doc.setFont('helvetica','bold'); doc.setTextColor(255,255,255); doc.text(companyName, ml, 30);
+  doc.setFontSize(10); doc.setFont('helvetica','normal'); doc.setTextColor(160,160,200); doc.text('Project Estimate — Internal Use Only', ml, 48);
+  doc.setFontSize(9); doc.text(new Date().toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'}), mr, 30, {align:'right'});
+  doc.text('ST Job #: ' + (jobNum || '—'), mr, 48, {align:'right'});
+  y = 90;
+
+  // Estimate title
+  doc.setFontSize(16); doc.setFont('helvetica','bold'); doc.setTextColor(30,30,30);
+  doc.text(estName || ('Estimate — Job #' + jobNum), ml, y); y += 22;
+  doc.setFontSize(10); doc.setFont('helvetica','normal'); doc.setTextColor(100,100,120);
+  const customerLine = [customer, address].filter(Boolean).join('  ·  ');
+  if (customerLine) { doc.text(customerLine, ml, y); y += 18; }
+  doc.text(dept + (jobType ? '  ·  ' + jobType : ''), ml, y); y += 20; line();
+
+  // Highlight boxes
+  const boxes = [
+    { label:'Final Quote', value: fmt(c.finalQuote), color: [30,30,40] },
+    { label:'Gross Profit', value: fmt(c.gpDollars), color: gmColor },
+    { label:'Gross Margin', value: c.gmPct.toFixed(1)+'%', color: gmColor },
+    { label:'GPMD This Job', value: fmt(c.gpmdJob) + '/md', color: [30,30,40] }
+  ];
+  const bw = 118; const bh = 52; let bx = ml;
+  boxes.forEach(b => {
+    doc.setFillColor(245,246,250); doc.roundedRect(bx, y, bw, bh, 4, 4, 'F');
+    doc.setFontSize(8); doc.setFont('helvetica','normal'); doc.setTextColor(120,120,140);
+    doc.text(b.label.toUpperCase(), bx+10, y+16);
+    doc.setFontSize(14); doc.setFont('helvetica','bold'); doc.setTextColor(...b.color);
+    doc.text(b.value, bx+10, y+38); bx += bw + 8;
+  });
+  y += bh + 20; line();
+
+  // Job info
+  sectionTitle('Job Information');
+  if (scope) {
+    doc.setFontSize(10); doc.setFont('helvetica','normal'); doc.setTextColor(50,50,70);
+    const scopeLines = doc.splitTextToSize(scope, mr-ml);
+    checkPage(scopeLines.length * 14 + 10);
+    doc.text(scopeLines, ml, y); y += scopeLines.length * 14 + 8;
+  }
+  if (stCustomer) row('ServiceTitan Customer ID', stCustomer);
+  if (stEstimate) row('ServiceTitan Estimate ID', stEstimate);
+  if (stProject) row('ServiceTitan Project ID', stProject);
+  line();
+
+  // Labor
+  sectionTitle('Labor Assumptions');
+  row('Crew Size', crew + ' technicians');
+  row('Estimated Duration', days + ' day' + (days != 1 ? 's' : ''));
+  row('Hours Per Day', hrs + ' hrs/day');
+  row('Man-Days', manDays);
+  row('Direct Loaded Labor Rate', '$' + rate + '/hr');
+  row('Total Labor Cost', fmt(c.laborCost), true);
+  line();
+
+  // Costs
+  sectionTitle('Project Costs');
+  const vMatVendor = document.getElementById('v-materials-vendor').value;
+  const vMatQuote = document.getElementById('v-materials-quote').value;
+  const vMatNotes = document.getElementById('v-materials-notes').value;
+  const vEqVendor = document.getElementById('v-equipment-vendor').value;
+  const vEqQuote = document.getElementById('v-equipment-quote').value;
+  const vEqNotes = document.getElementById('v-equipment-notes').value;
+  const vSubVendor = document.getElementById('v-subs-vendor').value;
+  const vSubQuote = document.getElementById('v-subs-quote').value;
+  const vSubNotes = document.getElementById('v-subs-notes').value;
+
+  const costPDFFields = [
+    { label: 'Materials', val: +document.getElementById('c-materials').value, vendor: vMatVendor, quote: vMatQuote, notes: vMatNotes },
+    { label: 'Equipment / Fixtures', val: +document.getElementById('c-equipment').value, vendor: vEqVendor, quote: vEqQuote, notes: vEqNotes },
+    { label: 'Subcontractors', val: +document.getElementById('c-subs').value, vendor: vSubVendor, quote: vSubQuote, notes: vSubNotes },
+    { label: 'Permits', val: +document.getElementById('c-permits').value },
+    { label: 'Restoration', val: +document.getElementById('c-restoration').value },
+    { label: 'Disposal', val: +document.getElementById('c-disposal').value },
+    { label: 'Rental Equipment', val: +document.getElementById('c-rental').value },
+    { label: 'Miscellaneous', val: +document.getElementById('c-misc').value },
+  ];
+  costPDFFields.filter(f => f.val > 0).forEach(f => {
+    row(f.label, fmt(f.val));
+    const detail = [f.vendor, f.quote ? 'Quote #' + f.quote : '', f.notes].filter(Boolean).join('  ·  ');
+    if (detail) {
+      checkPage(16);
+      doc.setFontSize(9); doc.setFont('helvetica','italic'); doc.setTextColor(140,140,160);
+      doc.text(detail, ml + 10, y); y += 13; doc.setTextColor(30,30,30);
+    }
+  });
+  lineItems.forEach(li => {
+    if (+li.cost > 0) {
+      row(li.description + (li.category ? ` (${li.category})` : ''), fmt(+li.cost));
+      const detail = [li.vendor, li.notes].filter(Boolean).join('  ·  ');
+      if (detail) { checkPage(16); doc.setFontSize(9); doc.setFont('helvetica','italic'); doc.setTextColor(140,140,160); doc.text(detail, ml+10, y); y += 13; doc.setTextColor(30,30,30); }
+    }
+  });
+  row('Contingency (' + contingencyPct + '%)', fmt(c.contingencyDollars));
+  row('Total Non-Labor Costs', fmt(c.totalNonLabor), true);
+  line();
+
+  // Pricing summary
+  sectionTitle('Pricing Summary');
+  row('Total Direct Costs', fmt(c.totalDirectCosts));
+  row('Minimum Acceptable Price', fmt(c.minAcceptablePrice));
+  row('Price at 40% Gross Margin', fmt(c.price40));
+  row('Price at 60% Gross Margin', fmt(c.price60));
+  row('Recommended Price (Target GM)', fmt(c.priceRec));
+  y += 4;
+  checkPage(24);
+  doc.setFillColor(245,246,250); doc.roundedRect(ml, y-2, mr-ml, 22, 3, 3, 'F');
+  row('FINAL QUOTE', fmt(c.finalQuote), true);
+  if (overrideReason) {
+    checkPage(16);
+    doc.setFontSize(9); doc.setFont('helvetica','italic'); doc.setTextColor(140,100,0);
+    doc.text('Override reason: ' + overrideReason, ml, y); y += 14;
+  }
+  line();
+
+  // GPMD Analysis
+  sectionTitle('GPMD Analysis');
+  row('GPMD Target', fmt(c.gpmdTargetVal) + '/man-day');
+  row('YTD Actual GPMD', fmt(c.gpmdActual) + '/man-day');
+  row('This Job GPMD', fmt(c.gpmdJob) + '/man-day', true);
+  const delta = c.gpmdJob - c.gpmdTargetVal;
+  checkPage(20);
+  doc.setFontSize(10); doc.setFont('helvetica','italic');
+  doc.setTextColor(...(delta >= 0 ? [20,120,60] : [180,50,50]));
+  const narrative = delta >= 0
+    ? `This job prices ${fmt(Math.abs(delta))}/man-day above GPMD target.`
+    : `This job prices ${fmt(Math.abs(delta))}/man-day below GPMD target. Assess strategic justification.`;
+  doc.text(narrative, ml, y); y += 20; line();
+
+  // Internal notes
+  if (notes) {
+    sectionTitle('Internal Notes');
+    doc.setFontSize(10); doc.setFont('helvetica','normal'); doc.setTextColor(50,50,70);
+    const nLines = doc.splitTextToSize(notes, mr-ml);
+    checkPage(nLines.length * 14 + 10);
+    doc.text(nLines, ml, y); y += nLines.length * 14 + 8; line();
+  }
+
+  // Footer on each page
+  const totalPages = doc.getNumberOfPages();
+  for (let p = 1; p <= totalPages; p++) {
+    doc.setPage(p);
+    doc.setFillColor(245,246,250); doc.rect(0, pageH-36, 612, 36, 'F');
+    doc.setFontSize(8); doc.setFont('helvetica','normal'); doc.setTextColor(140,140,160);
+    doc.text('INTERNAL USE ONLY — ' + companyName + ' — Project Estimator', ml, pageH-16);
+    doc.text('Page ' + p + ' of ' + totalPages + '  ·  Generated ' + new Date().toLocaleString(), mr, pageH-16, {align:'right'});
+  }
+
+  const filename = 'estimate-' + (jobNum || 'draft') + '-' + (estName || 'quote').replace(/[^a-z0-9]/gi,'_').toLowerCase() + '.pdf';
+  doc.save(filename);
+}
+
+function fmt(n) {
+  if (isNaN(n) || n === null) return '$0';
+  return '$' + Math.round(n).toLocaleString('en-US');
+}
+
+// Init
+window.addEventListener('load', () => { updateDeptDefaults && updateDeptDefaults(); });
+</script>
+
+
+</body></html>
